@@ -37,6 +37,7 @@ async function isPossible(
     return false;
   }
 
+  console.log(id);
   let arr = [];
   arr = await Interview.find();
   let s = parseInt(start.replace(/:/g, ""));
@@ -47,16 +48,27 @@ async function isPossible(
   for (let i = 0; i < arr.length; i++) {
     // If the current person is involved in any other interview at that time
 
-    if (id === arr[i].id) continue;
+    if (id === arr[i].id) {
+      console.log("aa");
+      continue;
+    }
+    console.log(i);
     if (arr[i].interviewer === interviewer || arr[i].candidate === candidate) {
       if (date === arr[i].date) {
         let s1 = parseInt(arr[i].start.replace(/:/g, ""));
         let e1 = parseInt(arr[i].end.replace(/:/g, ""));
 
-        if (s <= s1 <= e || s <= e1 <= e || s1 <= s <= e1 || s1 <= e <= e1) {
+        if (
+          (s <= s1 && s1 <= e) ||
+          (s <= e1 && e1 <= e) ||
+          (s1 <= s && s <= e1) ||
+          (s1 <= e && e <= e1)
+        ) {
+          console.log(s, e, s1, e1, typeof s, typeof e, typeof s1, typeof e1);
           if (s1 == e || e1 == s) {
             continue;
           }
+          console.log("bb");
           return false;
         }
       }
@@ -160,7 +172,7 @@ router.post(
     );
 
     // console.log("hello");
-    // console.log(check);
+    console.log(check);
     // console.log("bye");
     if (check) {
       const update = {
