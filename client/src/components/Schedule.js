@@ -2,11 +2,17 @@ import React, { Fragment } from "react";
 import List from "./layout/List";
 
 const Schedule = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+    // var date1 = document.getElementById("date");
+    // console.log(date1.value);
+  };
+
   return (
     <Fragment>
       <h1 className=" text-primary">Schedule an Interview</h1>
 
-      <form className="form">
+      <form className="form" onSubmit={(e) => onSubmit(e)}>
         <div className="form-group">
           <input
             type="text"
@@ -17,14 +23,20 @@ const Schedule = () => {
         </div>
         <div className="form-group">
           <input
-            type="email"
+            type="text"
             placeholder="Candidate"
             name="candidate"
             required
           />
         </div>
         <div className="form-group">
-          <input type="date" placeholder="Date" name="date" required />
+          <input
+            type="date"
+            placeholder="Date"
+            name="date"
+            id="date"
+            required
+          />
         </div>
         <small className="form-text">
           Enter the time in 24 Hour format, <i> for eg. 03:00</i>

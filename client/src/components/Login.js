@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 
-const Login = (props) => {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",

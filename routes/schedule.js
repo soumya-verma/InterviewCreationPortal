@@ -13,13 +13,36 @@ async function isPossible(
   candidate,
   id = mongoose.Types.ObjectId("000000000000000000000000")
 ) {
+  //  if date is past
+  let q = new Date();
+  let m = q.getMonth() + 1;
+  let d = q.getDate();
+  let y = q.getFullYear();
+
+  let today = y + "-" + m + "-" + d;
+
+  if (date < today) {
+    console.log("Past date");
+    return false;
+  }
+
+  // if current date and time is past
+  let min = q.getMinutes();
+  let hr = q.getHours();
+
+  let now = hr + ":" + min;
+
+  if (date == today && start < now) {
+    console.log("Past Time");
+    return false;
+  }
+
   let arr = [];
-
-  //   if(date<)
-
   arr = await Interview.find();
   let s = parseInt(start.replace(/:/g, ""));
   let e = parseInt(end.replace(/:/g, ""));
+
+  if (s >= e) return false;
 
   for (let i = 0; i < arr.length; i++) {
     // If the current person is involved in any other interview at that time
@@ -27,17 +50,13 @@ async function isPossible(
     if (id === arr[i].id) continue;
     if (arr[i].interviewer === interviewer || arr[i].candidate === candidate) {
       if (date === arr[i].date) {
-        // console.log(id);
-
         let s1 = parseInt(arr[i].start.replace(/:/g, ""));
         let e1 = parseInt(arr[i].end.replace(/:/g, ""));
 
-        // console.log(s);
-        // console.log(e);
-        // console.log(s1);
-        // console.log(e1);
-
         if (s <= s1 <= e || s <= e1 <= e || s1 <= s <= e1 || s1 <= e <= e1) {
+          if (s1 == e || e1 == s) {
+            continue;
+          }
           return false;
         }
       }
@@ -78,7 +97,7 @@ router.post(
 
     let check = await isPossible(start, end, date, interviewer, candidate);
 
-    console.log(check);
+    // console.log(check);
 
     if (check) {
       const interview = new Interview({
@@ -131,7 +150,7 @@ router.post(
     const { date, start, end } = req.body;
     const interview = await Interview.findById(req.params.id);
 
-    let check = isPossible(
+    let check = await isPossible(
       start,
       end,
       date,

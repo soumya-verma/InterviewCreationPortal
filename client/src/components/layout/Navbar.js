@@ -8,11 +8,11 @@ const Navbar = (props) => {
           <i className="fas fa-code"></i> Interview Scheduler
         </p>
       </h1>
-      <ul>
+      {/* <ul>
         <li>
           <p>Hello</p>
         </li>
-      </ul>
+      </ul> */}
     </nav>
   );
 };
