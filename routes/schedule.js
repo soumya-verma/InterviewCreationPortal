@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const Interview = require("../models/Interview");
+const User = require("../models/User");
 const { check, validationResult } = require("express-validator");
 
 async function isPossible(
@@ -13,67 +14,69 @@ async function isPossible(
   candidate,
   id = mongoose.Types.ObjectId("000000000000000000000000")
 ) {
-  //  if date is past
-  let q = new Date();
-  let m = q.getMonth() + 1;
-  let d = q.getDate();
-  let y = q.getFullYear();
+  //  if date has passed
+  // let q = new Date();
+  // let m = q.getMonth() + 1;
+  // let d = q.getDate();
+  // let y = q.getFullYear();
 
-  let today = y + "-" + m + "-" + d;
+  // let today = y + "-" + m + "-" + d;
 
-  if (date < today) {
-    console.log("Past date");
-    return false;
-  }
+  // if (date < today) {
+  //   console.log("Past Date");
+  //   return false;
+  // }
 
-  // if current date and time is past
-  let min = q.getMinutes();
-  let hr = q.getHours();
+  // // if current date and time has passed
+  // let min = q.getMinutes();
+  // let hr = q.getHours();
 
-  let now = hr + ":" + min;
+  // let now = hr + ":" + min;
 
-  if (date == today && start < now) {
-    console.log("Past Time");
-    return false;
-  }
+  // if (date == today && start < now) {
+  //   console.log("Past Time");
+  //   return false;
+  // }
 
-  console.log(id);
-  let arr = [];
-  arr = await Interview.find();
-  let s = parseInt(start.replace(/:/g, ""));
-  let e = parseInt(end.replace(/:/g, ""));
+  // let arr = [];
+  // arr = await Interview.find();
+  // let s = parseInt(start.replace(/:/g, "")); //03:00=>0300
+  // let e = parseInt(end.replace(/:/g, ""));
 
-  if (s >= e) return false;
+  // if (s >= e) return false;
 
-  for (let i = 0; i < arr.length; i++) {
-    // If the current person is involved in any other interview at that time
+  // for (let i = 0; i < arr.length; i++) {
+  //   if (id === arr[i].id) {
+  //     continue;
+  //   }
 
-    if (id === arr[i].id) {
-      console.log("aa");
-      continue;
-    }
-    console.log(i);
-    if (arr[i].interviewer === interviewer || arr[i].candidate === candidate) {
-      if (date === arr[i].date) {
-        let s1 = parseInt(arr[i].start.replace(/:/g, ""));
-        let e1 = parseInt(arr[i].end.replace(/:/g, ""));
+  //   // If the current person is involved in any other interview at that time
+  //   for (let j = 0; j < arr[i].interviewer.length; j++) {
+  //     for (let k = 0; k < arr[i].candidate.length; k++) {
+  //       if (
+  //         arr[i].interviewer[j].user === interviewer ||
+  //         arr[i].candidate[k].user === candidate
+  //       ) {
+  //         if (date === arr[i].date) {
+  //           let s1 = parseInt(arr[i].start.replace(/:/g, ""));
+  //           let e1 = parseInt(arr[i].end.replace(/:/g, ""));
 
-        if (
-          (s <= s1 && s1 <= e) ||
-          (s <= e1 && e1 <= e) ||
-          (s1 <= s && s <= e1) ||
-          (s1 <= e && e <= e1)
-        ) {
-          console.log(s, e, s1, e1, typeof s, typeof e, typeof s1, typeof e1);
-          if (s1 == e || e1 == s) {
-            continue;
-          }
-          console.log("bb");
-          return false;
-        }
-      }
-    }
-  }
+  //           if (
+  //             (s <= s1 && s1 <= e) ||
+  //             (s <= e1 && e1 <= e) ||
+  //             (s1 <= s && s <= e1) ||
+  //             (s1 <= e && e <= e1)
+  //           ) {
+  //             if (s1 == e || e1 == s) {
+  //               continue;
+  //             }
+  //             return false;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   return true;
 }
 
@@ -110,11 +113,22 @@ router.post(
     let check = await isPossible(start, end, date, interviewer, candidate);
 
     // console.log(check);
+    const interviewer_arr = [];
+    for (let i = 0; i < interviewer.length; i++) {
+      const user = await User.findOne({ email: interviewer[i] });
+      interviewer_arr.push({ user: user.id });
+    }
+
+    const candidate_arr = [];
+    for (let i = 0; i < candidate.length; i++) {
+      const user = await User.findOne({ email: candidate[i] });
+      candidate_arr.push({ user: user.id });
+    }
 
     if (check) {
       const interview = new Interview({
-        interviewer: interviewer,
-        candidate: candidate,
+        interviewer: interviewer_arr,
+        candidate: candidate_arr,
         date: date,
         start: start,
         end: end,
@@ -172,10 +186,12 @@ router.post(
     );
 
     // console.log("hello");
-    console.log(check);
+    // console.log(check);
     // console.log("bye");
+
     if (check) {
       const update = {
+        date: date,
         start: start,
         end: end,
       };
